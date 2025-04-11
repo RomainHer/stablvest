@@ -16,25 +16,29 @@ export class PortfolioService {
       totalValue += investmentValue;
     }
 
+    const investmentsWithProfit = await Promise.all(
+      investments.map(async (investment) => ({
+        ...investment,
+        currentPrice: await this.getCurrentPrice(investment),
+        profitLoss: await this.calculateProfitLoss(investment),
+      }))
+    );
+
     return {
       totalValue,
       totalInvested,
       totalProfitLoss: totalValue - totalInvested,
-      investments: await Promise.all(
-        investments.map(async (investment) => ({
-          ...investment,
-          currentPrice: await this.getCurrentPrice(investment),
-          profitLoss: await this.calculateProfitLoss(investment),
-        }))
-      ),
+      allInvestments: investmentsWithProfit,
+      profitableInvestments: investmentsWithProfit.filter(investment => investment.profitLoss > 0),
+      unprofitableInvestments: investmentsWithProfit.filter(investment => investment.profitLoss <= 0),
     };
   }
 
   private static async getCurrentPrice(investment: Investment): Promise<number> {
     if (investment.type === 'crypto') {
-      return CryptoService.getCurrentPrice(investment.symbol);
+      return CryptoService.getCurrentPrice(investment.idToken);
     } else {
-      return StockService.getCurrentPrice(investment.symbol);
+      return StockService.getCurrentPrice(investment.idToken);
     }
   }
 

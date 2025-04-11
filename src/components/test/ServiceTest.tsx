@@ -12,6 +12,7 @@ interface TestResults {
   crypto?: string;
   stock?: string;
   portfolio?: string;
+  cryptoList?: string;
 }
 
 export function ServiceTest() {
@@ -25,6 +26,17 @@ export function ServiceTest() {
       setResults((prev: TestResults) => ({ ...prev, crypto: `Bitcoin price: $${btcPrice}` }));
     } catch (error: unknown) {
       setResults((prev: TestResults) => ({ ...prev, crypto: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }));
+    }
+    setLoading(false);
+  };
+
+  const testCryptoList = async () => {
+    setLoading(true);
+    try {
+      const cryptoList = await CryptoService.getCryptoList();
+      setResults((prev: TestResults) => ({ ...prev, cryptoList: JSON.stringify(cryptoList, null, 2) }));
+    } catch (error: unknown) {
+      setResults((prev: TestResults) => ({ ...prev, cryptoList: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }));
     }
     setLoading(false);
   };
@@ -83,6 +95,9 @@ export function ServiceTest() {
             <Button onClick={testCryptoService} disabled={loading}>
               Test Crypto Service
             </Button>
+            <Button onClick={testCryptoList} disabled={loading}>
+              Test Crypto List
+            </Button>
             <Button onClick={testStockService} disabled={loading}>
               Test Stock Service
             </Button>
@@ -95,6 +110,13 @@ export function ServiceTest() {
             <div className="p-4 bg-muted rounded-md">
               <h3 className="font-semibold mb-2">Crypto Service Result:</h3>
               <pre>{results.crypto}</pre>
+            </div>
+          )}
+
+          {results.cryptoList && (
+            <div className="p-4 bg-muted rounded-md">
+              <h3 className="font-semibold mb-2">Crypto List Result:</h3>
+              <pre>{results.cryptoList}</pre>
             </div>
           )}
 
