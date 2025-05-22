@@ -36,9 +36,9 @@ export class PortfolioService {
 
   private static async getCurrentPrice(investment: Investment): Promise<number> {
     if (investment.type === 'crypto') {
-      return CryptoService.getCurrentPrice(investment.idToken);
+      return CryptoService.getCurrentPrice(investment.tokenId);
     } else {
-      return StockService.getCurrentPrice(investment.idToken);
+      return StockService.getCurrentPrice(investment.symbol);
     }
   }
 

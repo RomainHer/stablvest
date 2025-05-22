@@ -16,7 +16,6 @@ export class CryptoService {
       if (!apiKey) {
         throw new Error('CoinGecko API key is not defined');
       }
-      console.log(id);
       const response = await fetch(`${COINGECKO_API_URL}/simple/price?ids=${id}&vs_currencies=usd`, {
         method: 'GET',
         headers: {
@@ -25,7 +24,7 @@ export class CryptoService {
         },
       });
       const data = await response.json();
-      
+      console.log(data)
       return data[id.toLowerCase()].usd;
     } catch (error) {
       console.error('Error fetching crypto price:', error);

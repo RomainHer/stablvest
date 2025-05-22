@@ -20,11 +20,11 @@ export function InvestmentCard({ investment }: InvestmentCardProps) {
 
   useEffect(() => {
     if (investment.type === 'crypto') {
-      CryptoService.getCurrentPrice(investment.idToken).then((price) => {
+      CryptoService.getCurrentPrice(investment.tokenId).then((price) => {
         setCurrentPrice(price);
       });
     } else {  
-      StockService.getCurrentPrice(investment.idToken).then((price) => {
+      StockService.getCurrentPrice(investment.symbol).then((price) => {
         setCurrentPrice(price);
       });
     }
@@ -53,7 +53,7 @@ export function InvestmentCard({ investment }: InvestmentCardProps) {
         <div className="space-y-2">
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">Quantity</span>
-            <span>{investment.quantity}</span>
+            <span>{investment.quantity.toFixed(4)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">Purchase Price</span>

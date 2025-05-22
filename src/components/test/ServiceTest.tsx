@@ -59,7 +59,8 @@ export function ServiceTest() {
         {
           id: '1',
           type: 'crypto',
-          symbol: 'bitcoin',
+          symbol: 'btc',
+          tokenId: 'bitcoin',
           name: 'Bitcoin',
           quantity: 0.5,
           purchasePrice: 50000,
@@ -69,6 +70,7 @@ export function ServiceTest() {
           id: '2',
           type: 'stock',
           symbol: 'AAPL',
+          tokenId: '',
           name: 'Apple',
           quantity: 10,
           purchasePrice: 150,

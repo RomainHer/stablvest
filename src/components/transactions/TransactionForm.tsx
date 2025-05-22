@@ -23,9 +23,9 @@ export function TransactionForm({ onSubmit, onClose }: TransactionFormProps) {
   const [cryptoList, setCryptoList] = useState<{ id: string; symbol: string; name: string }[]>([]);
   const [formData, setFormData] = useState<Omit<Investment, 'id' | 'currentPrice' | 'profitLoss'>>({
     type: 'crypto',
-    symbol: '',
-    name: '',
-    idToken: '',
+    symbol: 'btc',
+    tokenId: 'bitcoin',
+    name: 'Bitcoin',
     quantity: 0,
     purchasePrice: 0,
     purchaseDate: new Date(),
@@ -73,8 +73,8 @@ export function TransactionForm({ onSubmit, onClose }: TransactionFormProps) {
             const selectedCrypto = cryptoList.find(c => c.symbol === value);
             setFormData({
               ...formData,
-              idToken: selectedCrypto?.id || 'bitcoin',
-              symbol: value || 'btc',
+              symbol: selectedCrypto?.symbol || 'btc',
+              tokenId: selectedCrypto?.id || 'bitcoin',
               name: selectedCrypto?.name || 'Bitcoin',
             });
           }}

@@ -16,13 +16,24 @@ import { v4 as uuidv4 } from 'uuid';
 const investmentSchema = z.object({
   type: z.enum(['crypto', 'stock']),
   symbol: z.string().min(1, 'Symbol is required'),
+  tokenId: z.string().min(1, 'Token ID is required').optional(),
   name: z.string().min(1, 'Name is required'),
   quantity: z.number().min(0.00000001, 'Quantity must be greater than 0'),
   purchasePrice: z.number().min(0.00000001, 'Price must be greater than 0'),
   purchaseDate: z.string().min(1, 'Date is required'),
+}).refine((data) => {
+  if (data.type === 'crypto') {
+    return !!data.tokenId;
+  }
+  return true;
+}, {
+  message: "Token ID is required for cryptocurrency investments",
+  path: ["tokenId"]
 });
 
-type InvestmentFormData = z.infer<typeof investmentSchema>;
+type InvestmentFormData = z.infer<typeof investmentSchema> & {
+  tokenId?: string;
+};
 
 interface InvestmentFormProps {
   onInvestmentAdded?: (investment: Investment) => void;
@@ -37,6 +48,7 @@ export function InvestmentForm({ onInvestmentAdded }: InvestmentFormProps) {
       type: 'crypto',
       symbol: '',
       name: '',
+      tokenId: '',
       quantity: 0,
       purchasePrice: 0,
       purchaseDate: new Date().toISOString().split('T')[0],
@@ -51,6 +63,7 @@ export function InvestmentForm({ onInvestmentAdded }: InvestmentFormProps) {
         type: data.type,
         symbol: data.symbol,
         name: data.name,
+        tokenId: data.tokenId || '',
         quantity: data.quantity,
         purchasePrice: data.purchasePrice,
         purchaseDate: new Date(data.purchaseDate),

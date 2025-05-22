@@ -20,12 +20,14 @@ export default function PortfolioPage() {
   }, []);
 
   useEffect(() => {
+    console.log(investments);
     const calculatePortfolio = async () => {
       const portfolio = await PortfolioService.calculatePortfolio(investments);
       setPortfolio(portfolio);
     };
     calculatePortfolio();
   }, [investments]);
+
   const handleAddTransaction = async (investment: Omit<Investment, 'id' | 'currentPrice' | 'profitLoss'>) => {
     const newInvestment: Investment = {
       ...investment,

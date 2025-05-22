@@ -3,7 +3,7 @@ export type InvestmentType = 'crypto' | 'stock';
 export interface Investment {
   id: string;
   type: InvestmentType;
-  idToken: string;
+  tokenId: string;
   symbol: string;
   name: string;
   quantity: number;
