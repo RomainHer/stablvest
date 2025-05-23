@@ -1,3 +1,5 @@
+import { useSettingsStore } from '../stores/settingsStore';
+
 const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3';
 
 interface CoinMarketData {
@@ -16,7 +18,8 @@ export class CryptoService {
       if (!apiKey) {
         throw new Error('CoinGecko API key is not defined');
       }
-      const response = await fetch(`${COINGECKO_API_URL}/simple/price?ids=${id}&vs_currencies=usd`, {
+      const currency = useSettingsStore.getState().currency.toLowerCase();
+      const response = await fetch(`${COINGECKO_API_URL}/simple/price?ids=${id}&vs_currencies=${currency}`, {
         method: 'GET',
         headers: {
           'accept': 'application/json',
@@ -25,7 +28,7 @@ export class CryptoService {
       });
       const data = await response.json();
       console.log(data)
-      return data[id.toLowerCase()].usd;
+      return data[id.toLowerCase()][currency];
     } catch (error) {
       console.error('Error fetching crypto price:', error);
       throw error;
@@ -38,9 +41,10 @@ export class CryptoService {
       if (!apiKey) {
         throw new Error('CoinGecko API key is not defined');
       }
+      const currency = useSettingsStore.getState().currency.toLowerCase();
       const timestamp = Math.floor(date.getTime() / 1000);
       const response = await fetch(
-        `${COINGECKO_API_URL}/coins/${id}/market_chart/range?vs_currency=usd&from=${timestamp}&to=${timestamp}`,
+        `${COINGECKO_API_URL}/coins/${id}/market_chart/range?vs_currency=${currency}&from=${timestamp}&to=${timestamp}`,
         {
           method: 'GET',
           headers: {

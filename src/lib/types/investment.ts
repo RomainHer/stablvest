@@ -8,6 +8,7 @@ export interface Investment {
   name: string;
   quantity: number;
   purchasePrice: number;
+  purchasePriceCurrency: string;
   purchaseDate: Date;
   currentPrice?: number;
   profitLoss?: number;

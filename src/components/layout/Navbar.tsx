@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { Settings } from 'lucide-react';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -38,6 +39,15 @@ export function Navbar() {
               ))}
             </div>
           </div>
+          <Link
+            href="/settings"
+            className={cn(
+              'p-2 rounded-md transition-colors hover:bg-accent',
+              pathname === '/settings' ? 'text-primary' : 'text-muted-foreground'
+            )}
+          >
+            <Settings className="h-5 w-5" />
+          </Link>
         </div>
       </div>
     </nav>

@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Investment, InvestmentType } from '@/lib/types/investment';
 import { InvestmentStorage } from '@/lib/storage/investmentStorage';
 import { v4 as uuidv4 } from 'uuid';
+import { useSettingsStore } from '@/lib/stores/settingsStore';
 
 const investmentSchema = z.object({
   type: z.enum(['crypto', 'stock']),
@@ -41,6 +42,7 @@ interface InvestmentFormProps {
 
 export function InvestmentForm({ onInvestmentAdded }: InvestmentFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { currency } = useSettingsStore();
   
   const form = useForm<InvestmentFormData>({
     resolver: zodResolver(investmentSchema),
@@ -66,6 +68,7 @@ export function InvestmentForm({ onInvestmentAdded }: InvestmentFormProps) {
         tokenId: data.tokenId || '',
         quantity: data.quantity,
         purchasePrice: data.purchasePrice,
+        purchasePriceCurrency: currency,
         purchaseDate: new Date(data.purchaseDate),
       };
 

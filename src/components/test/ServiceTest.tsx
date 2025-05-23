@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CryptoService } from '@/lib/services/crypto.service';
 import { StockService } from '@/lib/services/stock.service';
 import { PortfolioService } from '@/lib/services/portfolio.service';
 import { Investment } from '@/lib/types/investment';
-
+import { useSettingsStore } from '@/lib/stores/settingsStore';
 interface TestResults {
   crypto?: string;
   stock?: string;
@@ -18,12 +18,26 @@ interface TestResults {
 export function ServiceTest() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<TestResults>({});
+  const { currency } = useSettingsStore();
+
+  const currencyFormatted = useMemo(() => {
+    switch(currency) {
+      case "USD":
+        return "$"
+      case "EUR": 
+        return "€"
+      case "GBP":
+        return "£"
+      default:
+        return currency
+    }
+  }, [currency]);
 
   const testCryptoService = async () => {
     setLoading(true);
     try {
       const btcPrice = await CryptoService.getCurrentPrice('bitcoin');
-      setResults((prev: TestResults) => ({ ...prev, crypto: `Bitcoin price: $${btcPrice}` }));
+      setResults((prev: TestResults) => ({ ...prev, crypto: `Bitcoin price: ${btcPrice}${currencyFormatted}`}));
     } catch (error: unknown) {
       setResults((prev: TestResults) => ({ ...prev, crypto: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }));
     }
@@ -45,7 +59,7 @@ export function ServiceTest() {
     setLoading(true);
     try {
       const aaplPrice = await StockService.getCurrentPrice('AAPL');
-      setResults((prev: TestResults) => ({ ...prev, stock: `Apple stock price: $${aaplPrice}` }));
+      setResults((prev: TestResults) => ({ ...prev, stock: `Apple stock price: ${aaplPrice}` }));
     } catch (error: unknown) {
       setResults((prev: TestResults) => ({ ...prev, stock: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }));
     }
@@ -64,6 +78,7 @@ export function ServiceTest() {
           name: 'Bitcoin',
           quantity: 0.5,
           purchasePrice: 50000,
+          purchasePriceCurrency: 'USD',
           purchaseDate: new Date('2023-01-01'),
         },
         {
@@ -74,6 +89,7 @@ export function ServiceTest() {
           name: 'Apple',
           quantity: 10,
           purchasePrice: 150,
+          purchasePriceCurrency: 'USD',
           purchaseDate: new Date('2023-01-01'),
         },
       ];
