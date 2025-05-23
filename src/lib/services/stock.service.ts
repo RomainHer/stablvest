@@ -1,7 +1,10 @@
+import { useSettingsStore } from "../stores/settingsStore";
+
 export class StockService {
   static async getCurrentPrice(symbol: string): Promise<number> {
+    const { currency } = useSettingsStore.getState();
     try {
-      const response = await fetch(`/api/stocks?symbol=${symbol}`);
+      const response = await fetch(`/api/stocks?symbol=${symbol}&currency=${currency}`);
       if (!response.ok) {
         throw new Error('Failed to fetch stock price');
       }
@@ -14,8 +17,9 @@ export class StockService {
   }
 
   static async getHistoricalPrice(symbol: string, date: Date): Promise<number> {
+    const { currency } = useSettingsStore.getState();
     try {
-      const response = await fetch(`/api/stocks?symbol=${symbol}&date=${date.toISOString()}`);
+      const response = await fetch(`/api/stocks?symbol=${symbol}&currency=${currency}&date=${date.toISOString()}`);
       if (!response.ok) {
         throw new Error('Failed to fetch historical stock price');
       }
