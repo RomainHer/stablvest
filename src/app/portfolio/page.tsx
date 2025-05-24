@@ -7,8 +7,12 @@ import { TransactionForm } from '@/components/transactions/TransactionForm';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useSettingsStore } from '@/lib/stores/settingsStore';
+import { currencyFormatted } from '@/lib/utils';
 
 export default function PortfolioPage() {
+  const currency = useSettingsStore.getState().currency;
+
   const [investments, setInvestments] = useState<Investment[]>([]);
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,6 +35,7 @@ export default function PortfolioPage() {
   const handleAddTransaction = async (investment: Omit<Investment, 'id' | 'currentPrice' | 'profitLoss'>) => {
     const newInvestment: Investment = {
       ...investment,
+      purchasePriceCurrency: currency,
       id: crypto.randomUUID(),
       currentPrice: 0,
       profitLoss: 0,
@@ -77,16 +82,16 @@ export default function PortfolioPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-card p-4 rounded-lg">
             <h3 className="text-sm font-medium text-muted-foreground">Valeur totale</h3>
-            <p className="text-2xl font-bold">{portfolio.totalValue.toFixed(2)} $</p>
+            <p className="text-2xl font-bold">{portfolio.totalValue.toFixed(2)} {currencyFormatted(currency)}</p>
           </div>
           <div className="bg-card p-4 rounded-lg">
             <h3 className="text-sm font-medium text-muted-foreground">Investi total</h3>
-            <p className="text-2xl font-bold">{portfolio.totalInvested.toFixed(2)} $</p>
+            <p className="text-2xl font-bold">{portfolio.totalInvested.toFixed(2)} {currencyFormatted(currency)}</p>
           </div>
           <div className="bg-card p-4 rounded-lg">
             <h3 className="text-sm font-medium text-muted-foreground">Profit/Perte</h3>
             <p className={`text-2xl font-bold ${portfolio.totalProfitLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-              {portfolio.totalProfitLoss.toFixed(2)} $
+              {portfolio.totalProfitLoss.toFixed(2)} {currencyFormatted(currency)}
             </p>
           </div>
         </div>
@@ -101,13 +106,13 @@ export default function PortfolioPage() {
                 <p className="text-sm text-muted-foreground">{investment.symbol}</p>
               </div>
               <p className={`font-bold ${investment.profitLoss && investment.profitLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {investment.profitLoss?.toFixed(2)} $
+                {investment.profitLoss?.toFixed(2)} {currencyFormatted(currency)}
               </p>
             </div>
             <div className="mt-4">
               <p>Quantité: {investment.quantity}</p>
-              <p>Prix d&apos;achat: {investment.purchasePrice.toFixed(2)} $</p>
-              <p>Prix actuel: {investment.currentPrice?.toFixed(2)} $</p>
+              <p>Prix d&apos;achat: {investment.purchasePrice.toFixed(2)} {currencyFormatted(currency)}</p>
+              <p>Prix actuel: {investment.currentPrice?.toFixed(2)} {currencyFormatted(currency)}</p>
             </div>
           </div>
         ))}

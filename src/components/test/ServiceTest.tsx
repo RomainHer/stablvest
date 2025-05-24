@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CryptoService } from '@/lib/services/crypto.service';
@@ -8,6 +8,8 @@ import { StockService } from '@/lib/services/stock.service';
 import { PortfolioService } from '@/lib/services/portfolio.service';
 import { Investment } from '@/lib/types/investment';
 import { useSettingsStore } from '@/lib/stores/settingsStore';
+import { currencyFormatted } from '@/lib/utils';
+
 interface TestResults {
   crypto?: string;
   stock?: string;
@@ -20,24 +22,11 @@ export function ServiceTest() {
   const [results, setResults] = useState<TestResults>({});
   const { currency } = useSettingsStore();
 
-  const currencyFormatted = useMemo(() => {
-    switch(currency) {
-      case "USD":
-        return "$"
-      case "EUR": 
-        return "€"
-      case "GBP":
-        return "£"
-      default:
-        return currency
-    }
-  }, [currency]);
-
   const testCryptoService = async () => {
     setLoading(true);
     try {
       const btcPrice = await CryptoService.getCurrentPrice('bitcoin');
-      setResults((prev: TestResults) => ({ ...prev, crypto: `Bitcoin price: ${btcPrice}${currencyFormatted}`}));
+      setResults((prev: TestResults) => ({ ...prev, crypto: `Bitcoin price: ${btcPrice}${currencyFormatted(currency)}`}));
     } catch (error: unknown) {
       setResults((prev: TestResults) => ({ ...prev, crypto: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }));
     }
@@ -59,7 +48,7 @@ export function ServiceTest() {
     setLoading(true);
     try {
       const aaplPrice = await StockService.getCurrentPrice('AAPL');
-      setResults((prev: TestResults) => ({ ...prev, stock: `Apple stock price: ${aaplPrice}` }));
+      setResults((prev: TestResults) => ({ ...prev, stock: `Apple stock price: ${aaplPrice.toFixed(2)}${currencyFormatted(currency)}` }));
     } catch (error: unknown) {
       setResults((prev: TestResults) => ({ ...prev, stock: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }));
     }
@@ -88,7 +77,7 @@ export function ServiceTest() {
           tokenId: '',
           name: 'Apple',
           quantity: 10,
-          purchasePrice: 150,
+          purchasePrice: 1900,
           purchasePriceCurrency: 'USD',
           purchaseDate: new Date('2023-01-01'),
         },
