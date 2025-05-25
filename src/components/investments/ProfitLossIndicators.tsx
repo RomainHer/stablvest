@@ -28,7 +28,7 @@ export function ProfitLossIndicators({ investments }: ProfitLossIndicatorsProps)
   }, [investments]);
 
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Invested</CardTitle>
@@ -58,6 +58,15 @@ export function ProfitLossIndicators({ investments }: ProfitLossIndicatorsProps)
           <p className="text-xs text-muted-foreground">
             {portfolio.profitableInvestments.length} of {portfolio.allInvestments.length} investments are profitable
           </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Profit/Loss %</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className={`text-2xl font-bold ${portfolio.totalProfitLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>{portfolio.totalProfitLoss >= 0 ? '+' : ''} {((portfolio.totalProfitLoss ?? 0) / portfolio.totalInvested * 100).toFixed(2)}%</div>
         </CardContent>
       </Card>
     </div>

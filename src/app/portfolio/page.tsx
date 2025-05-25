@@ -79,7 +79,7 @@ export default function PortfolioPage() {
       </div>
 
       {portfolio && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-card p-4 rounded-lg">
             <h3 className="text-sm font-medium text-muted-foreground">Valeur totale</h3>
             <p className="text-2xl font-bold">{portfolio.totalValue.toFixed(2)} {currencyFormatted(currency)}</p>
@@ -94,25 +94,35 @@ export default function PortfolioPage() {
               {portfolio.totalProfitLoss.toFixed(2)} {currencyFormatted(currency)}
             </p>
           </div>
+          <div className="bg-card p-4 rounded-lg">
+            <h3 className="text-sm font-medium text-muted-foreground">Pourcentage de gain</h3>
+            <p className={`text-2xl font-bold ${portfolio.totalProfitLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+              {((portfolio.totalProfitLoss ?? 0) / portfolio.totalInvested * 100).toFixed(2)}%
+            </p>
+          </div>
         </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredInvestments?.map((investment: Investment) => (
-          <div key={investment.id} className="bg-card p-4 rounded-lg">
+          <div key={investment.id} className="bg-card p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 border-t border-border/50">
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="font-bold">{investment.name}</h3>
                 <p className="text-sm text-muted-foreground">{investment.symbol}</p>
               </div>
-              <p className={`font-bold ${investment.profitLoss && investment.profitLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {investment.profitLoss?.toFixed(2)} {currencyFormatted(currency)}
+              <p className="font-bold">
+                {((investment.currentPrice ?? 0) * investment.quantity).toFixed(2)} {currencyFormatted(currency)}{' '}
+                <span className={`${investment.profitLoss && investment.profitLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  ({investment.profitLoss && investment.profitLoss >= 0 ? '+' : ''} {(investment.profitLoss ?? 0).toFixed(2)} {currencyFormatted(currency)})
+                </span>
               </p>
             </div>
             <div className="mt-4">
               <p>Quantité: {investment.quantity}</p>
-              <p>Prix d&apos;achat: {investment.purchasePrice.toFixed(2)} {currencyFormatted(currency)}</p>
               <p>Prix actuel: {investment.currentPrice?.toFixed(2)} {currencyFormatted(currency)}</p>
+              <p>Investissement de départ: {investment.purchasePrice.toFixed(2)} {currencyFormatted(currency)}</p>
+              <p>Pourcentage de gain: <span className={`${investment.profitLoss && investment.profitLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>{((investment.profitLoss ?? 0) / investment.purchasePrice * 100 ).toFixed(2)}%</span></p>
             </div>
           </div>
         ))}
