@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { AuthModal } from './AuthModal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,9 +9,10 @@ import { Button } from '@/components/ui/button';
 interface ProtectedRouteProps {
   children: ReactNode;
   fallback?: ReactNode;
+  redirectToLogin?: boolean;
 }
 
-export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
+export function ProtectedRoute({ children, fallback, redirectToLogin = true }: ProtectedRouteProps) {
   const { user, loading, initialized } = useAuth();
 
   // Affichage de chargement pendant l'initialisation
@@ -33,15 +34,23 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
     return <>{children}</>;
   }
 
-  // Utilisateur non connecté : afficher le fallback ou le message par défaut
+  // Utilisateur non connecté : redirection ou fallback
   if (fallback) {
     return <>{fallback}</>;
   }
 
-  return <UnauthenticatedFallback />;
+  return <UnauthenticatedFallback redirectToLogin={redirectToLogin} />;
 }
 
-function UnauthenticatedFallback() {
+function UnauthenticatedFallback({ redirectToLogin }: { redirectToLogin: boolean }) {
+  const { user } = useAuth();
+
+  // Si l'utilisateur n'est pas connecté et qu'on veut rediriger, afficher le modal de connexion
+  if (redirectToLogin && !user) {
+    return <AuthModal isOpen={true} onClose={() => {}} forceOpen={true} />;
+  }
+
+  // Sinon afficher le message d'accès restreint
   return (
     <div className="container mx-auto py-8">
       <Card className="max-w-md mx-auto">

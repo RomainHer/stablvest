@@ -11,9 +11,10 @@ import { useAuth } from '@/lib/hooks/useAuth';
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  forceOpen?: boolean; // Pour empêcher la fermeture quand ouvert automatiquement
 }
 
-export function AuthModal({ isOpen, onClose }: AuthModalProps) {
+export function AuthModal({ isOpen, onClose, forceOpen = false }: AuthModalProps) {
   const { signIn, signUp, resetPassword, loading } = useAuth();
   
   const [email, setEmail] = useState('');
@@ -32,6 +33,10 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   };
 
   const handleClose = () => {
+    // Si forceOpen est activé, empêcher la fermeture
+    if (forceOpen) {
+      return;
+    }
     resetForm();
     onClose();
   };
@@ -104,8 +109,8 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     }
   };
 
-  return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+      return (
+      <Dialog open={isOpen} onOpenChange={forceOpen ? undefined : handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Authentification</DialogTitle>
