@@ -2,6 +2,8 @@ import { ServiceTest } from '@/components/test/ServiceTest';
 import { SupabaseTest } from '@/components/test/SupabaseTest';
 import { MappingTest } from '@/components/test/MappingTest';
 import { AuthTest } from '@/components/test/AuthTest';
+import { RouteProtectionTest } from '@/components/test/RouteProtectionTest';
+import { LandingPageTest } from '@/components/test/LandingPageTest';
 
 export default function TestPage() {
   return (
@@ -16,6 +18,12 @@ export default function TestPage() {
       
       {/* Test du Système d'Authentification */}
       <AuthTest />
+      
+      {/* Test de Protection des Routes */}
+      <RouteProtectionTest />
+      
+      {/* Test de la Landing Page */}
+      <LandingPageTest />
       
       {/* Tests des services existants */}
       <ServiceTest />

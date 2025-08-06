@@ -1,41 +1,28 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Investment } from '@/lib/types/investment';
-import { InvestmentStorage } from '@/lib/storage/investmentStorage';
-import { PerformanceChart } from '@/components/investments/PerformanceChart';
-import { ProfitLossIndicators } from '@/components/investments/ProfitLossIndicators';
-import { InvestmentCard } from '@/components/investments/InvestmentCard';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { LandingPage } from '@/components/landing/LandingPage';
+import { Dashboard } from '@/components/dashboard/Dashboard';
 
 export default function HomePage() {
-  const [investments, setInvestments] = useState<Investment[]>([]);
+  const { user, loading, initialized } = useAuth();
 
-  useEffect(() => {
-    const storedInvestments = InvestmentStorage.getAll();
-    setInvestments(storedInvestments);
-  }, []);
+  // Affichage de chargement pendant l'initialisation
+  if (!initialized || loading) {
+    return (
+      <div className="container mx-auto py-8">
+        <div className="flex items-center justify-center">
+          <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full"></div>
+        </div>
+      </div>
+    );
+  }
 
-  return (
-    <main className="container mx-auto py-8 space-y-8">
-      <h1 className="text-3xl font-bold">Dashboard</h1>
-      
-      <ProfitLossIndicators investments={investments} />
-      
-      <PerformanceChart investments={investments} />
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Investments</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {investments.slice(0, 6).map((investment) => (
-              <InvestmentCard key={investment.id} investment={investment} />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </main>
-  );
+  // Utilisateur connecté : afficher le dashboard
+  if (user) {
+    return <Dashboard />;
+  }
+
+  // Utilisateur non connecté : afficher la landing page
+  return <LandingPage />;
 } 
