@@ -14,14 +14,19 @@ import {
 } from '@/components/ui/select';
 import { CryptoService } from '@/lib/services/crypto.service';
 
+type FormInvestment = Omit<
+  Investment,
+  'id' | 'currentPrice' | 'profitLoss' | 'purchasePriceCurrency'
+>;
+
 interface TransactionFormProps {
-  onSubmit: (investment: Omit<Investment, 'id' | 'currentPrice' | 'profitLoss'>) => void;
+  onSubmit: (investment: FormInvestment) => void;
   onClose: () => void;
 }
 
 export function TransactionForm({ onSubmit, onClose }: TransactionFormProps) {
   const [cryptoList, setCryptoList] = useState<{ id: string; symbol: string; name: string }[]>([]);
-  const [formData, setFormData] = useState<Omit<Investment, 'id' | 'currentPrice' | 'profitLoss'>>({
+  const [formData, setFormData] = useState<FormInvestment>({
     type: 'crypto',
     symbol: 'btc',
     tokenId: 'bitcoin',
@@ -98,9 +103,14 @@ export function TransactionForm({ onSubmit, onClose }: TransactionFormProps) {
           id="quantity"
           type="number"
           value={formData.quantity}
-          onChange={(e) =>
-            setFormData({ ...formData, quantity: parseFloat(e.target.value) })
-          }
+          onChange={(e) => {
+            const rawValue = e.target.value;
+            const parsedValue = parseFloat(rawValue);
+            setFormData({
+              ...formData,
+              quantity: Number.isNaN(parsedValue) ? 0 : parsedValue,
+            });
+          }}
           placeholder="0.00"
         />
       </div>
@@ -111,9 +121,14 @@ export function TransactionForm({ onSubmit, onClose }: TransactionFormProps) {
           id="purchasePrice"
           type="number"
           value={formData.purchasePrice}
-          onChange={(e) =>
-            setFormData({ ...formData, purchasePrice: parseFloat(e.target.value) })
-          }
+          onChange={(e) => {
+            const rawValue = e.target.value;
+            const parsedValue = parseFloat(rawValue);
+            setFormData({
+              ...formData,
+              purchasePrice: Number.isNaN(parsedValue) ? 0 : parsedValue,
+            });
+          }}
           placeholder="0.00"
         />
       </div>
@@ -123,10 +138,18 @@ export function TransactionForm({ onSubmit, onClose }: TransactionFormProps) {
         <Input
           id="purchaseDate"
           type="date"
-          value={formData.purchaseDate.toISOString().split('T')[0]}
-          onChange={(e) =>
-            setFormData({ ...formData, purchaseDate: new Date(e.target.value) })
+          value={
+            Number.isNaN(formData.purchaseDate.getTime())
+              ? ''
+              : formData.purchaseDate.toISOString().split('T')[0]
           }
+          onChange={(e) => {
+            const rawValue = e.target.value;
+            setFormData({
+              ...formData,
+              purchaseDate: rawValue ? new Date(rawValue) : new Date(),
+            });
+          }}
         />
       </div>
 

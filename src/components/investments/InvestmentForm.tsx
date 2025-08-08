@@ -10,8 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Investment, InvestmentType } from '@/lib/types/investment';
-import { InvestmentStorage } from '@/lib/storage/investmentStorage';
-import { v4 as uuidv4 } from 'uuid';
+import { SupabaseInvestmentService } from '@/lib/services/supabase/investment.service';
 import { useSettingsStore } from '@/lib/stores/settingsStore';
 
 const investmentSchema = z.object({
@@ -60,8 +59,7 @@ export function InvestmentForm({ onInvestmentAdded }: InvestmentFormProps) {
   const onSubmit = async (data: InvestmentFormData) => {
     setIsSubmitting(true);
     try {
-      const newInvestment: Investment = {
-        id: uuidv4(),
+      const created = await SupabaseInvestmentService.add({
         type: data.type,
         symbol: data.symbol,
         name: data.name,
@@ -70,10 +68,8 @@ export function InvestmentForm({ onInvestmentAdded }: InvestmentFormProps) {
         purchasePrice: data.purchasePrice,
         purchasePriceCurrency: currency,
         purchaseDate: new Date(data.purchaseDate),
-      };
-
-      InvestmentStorage.add(newInvestment);
-      onInvestmentAdded?.(newInvestment);
+      });
+      onInvestmentAdded?.(created);
       form.reset();
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -153,7 +149,7 @@ export function InvestmentForm({ onInvestmentAdded }: InvestmentFormProps) {
           </div>
 
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Adding...' : 'Add Investment'}
+            {isSubmitting ? 'Ajout...' : 'Ajouter'}
           </Button>
         </form>
       </CardContent>
