@@ -1,0 +1,16 @@
+name: Validate PR to main comes from develop
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+jobs:
+  check-pr-source:
+    if: github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if PR is not from develop to main
+        if: github.head_ref != 'develop'
+        run: |
+          echo "❌ Seules les PR vers main depuis 'develop' sont autorisées."
+          exit 1
