@@ -3,6 +3,7 @@
 import { useAuth } from '@/lib/hooks/useAuth';
 import { LandingPage } from '@/components/landing/LandingPage';
 import { Dashboard } from '@/components/dashboard/Dashboard';
+ 
 
 export default function HomePage() {
   const { user, loading, initialized } = useAuth();
