@@ -3,29 +3,12 @@
 import { Investment, Portfolio } from '@/lib/types/investment';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
-import { PortfolioService } from '@/lib/services/portfolio.service';
-import { useEffect, useState } from 'react';
 
 interface ProfitLossIndicatorsProps {
-  investments: Investment[];
+  portfolio: Portfolio;
 }
 
-export function ProfitLossIndicators({ investments }: ProfitLossIndicatorsProps) {
-
-  const [portfolio, setPortfolio] = useState<Portfolio>({
-    totalValue: 0,
-    totalInvested: 0,
-    totalProfitLoss: 0,
-    allInvestments: [],
-    profitableInvestments: [],
-    unprofitableInvestments: [],
-  });
-
-  useEffect(() => {
-    PortfolioService.calculatePortfolio(investments).then((portfolio) => {
-        setPortfolio(portfolio);
-    });
-  }, [investments]);
+export function ProfitLossIndicators({ portfolio }: ProfitLossIndicatorsProps) {
 
   return (
     <div className="grid gap-4 md:grid-cols-4">
