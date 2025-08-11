@@ -7,6 +7,7 @@ import { PerformanceChart } from '@/components/investments/PerformanceChart';
 import { ProfitLossIndicators } from '@/components/investments/ProfitLossIndicators';
 import { InvestmentCard } from '@/components/investments/InvestmentCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { SupabasePortfolioService } from '@/lib/services/supabase/portfolio.service';
 
 export function Dashboard() {
   const [investments, setInvestments] = useState<Investment[]>([]);
@@ -17,8 +18,8 @@ export function Dashboard() {
     const load = async () => {
       try {
         setLoading(true);
-        const data = await SupabaseInvestmentService.getAll();
-        setInvestments(data);
+        const data = await SupabasePortfolioService.calculatePortfolio();
+        setInvestments(data.allInvestments);
       } catch (e: any) {
         setError(e?.message || 'Erreur lors du chargement des investissements');
       } finally {
@@ -51,7 +52,7 @@ export function Dashboard() {
             {investments.length === 0 ? (
               <div className="text-sm text-muted-foreground">Aucun investissement pour le moment.</div>
             ) : (
-              investments.slice(0, 6).map((investment) => (
+              investments.slice(0, 3).map((investment) => (
                 <InvestmentCard key={investment.id} investment={investment} />
               ))
             )}
