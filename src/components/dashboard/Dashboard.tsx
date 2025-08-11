@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Investment } from '@/lib/types/investment';
+import { Investment, Portfolio } from '@/lib/types/investment';
 import { SupabaseInvestmentService } from '@/lib/services/supabase/investment.service';
 import { PerformanceChart } from '@/components/investments/PerformanceChart';
 import { ProfitLossIndicators } from '@/components/investments/ProfitLossIndicators';
@@ -10,7 +10,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SupabasePortfolioService } from '@/lib/services/supabase/portfolio.service';
 
 export function Dashboard() {
-  const [investments, setInvestments] = useState<Investment[]>([]);
+  const [portfolio, setPortfolio] = useState<Portfolio>({
+    totalValue: 0,
+    totalInvested: 0,
+    totalProfitLoss: 0,
+    allInvestments: [],
+    profitableInvestments: [],
+    unprofitableInvestments: [],
+  });
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
 
@@ -19,7 +26,7 @@ export function Dashboard() {
       try {
         setLoading(true);
         const data = await SupabasePortfolioService.calculatePortfolio();
-        setInvestments(data.allInvestments);
+        setPortfolio(data);
       } catch (e: any) {
         setError(e?.message || 'Erreur lors du chargement des investissements');
       } finally {
@@ -39,9 +46,9 @@ export function Dashboard() {
         <div className="text-sm text-red-600">{error}</div>
       )}
       
-      <ProfitLossIndicators investments={investments} />
+      <ProfitLossIndicators portfolio={portfolio} />
       
-      <PerformanceChart investments={investments} />
+      <PerformanceChart investments={portfolio.allInvestments} />
       
       <Card>
         <CardHeader>
@@ -49,10 +56,10 @@ export function Dashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {investments.length === 0 ? (
+            {portfolio.allInvestments.length === 0 ? (
               <div className="text-sm text-muted-foreground">Aucun investissement pour le moment.</div>
             ) : (
-              investments.slice(0, 3).map((investment) => (
+              portfolio.allInvestments.slice(0, 3).map((investment) => (
                 <InvestmentCard key={investment.id} investment={investment} />
               ))
             )}
