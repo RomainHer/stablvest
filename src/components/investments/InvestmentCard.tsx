@@ -3,10 +3,11 @@
 import { Investment } from '@/lib/types/investment';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { formatCurrency, formatDate, calculateProfitLoss } from '@/lib/utils';
+import { currencyFormatted, formatDate } from '@/lib/utils';
 import { useEffect, useState, useMemo } from 'react';
 import { CryptoService } from '@/lib/services/crypto.service';
 import { StockService } from '@/lib/services/stock.service';
+import { useSettingsStore } from '@/lib/stores/settingsStore';
 
 interface InvestmentCardProps {
   investment: Investment;
@@ -14,30 +15,13 @@ interface InvestmentCardProps {
 
 export function InvestmentCard({ investment }: InvestmentCardProps) {
 
-  const [currentPrice, setCurrentPrice] = useState<number>(0);
-  const [profitLoss, setProfitLoss] = useState<number>(0);
-  const profitLossPourcentage = useMemo(() => (profitLoss / (investment.quantity * investment.purchasePrice)) * 100, [profitLoss, investment.quantity, investment.purchasePrice]);
+  const { currency } = useSettingsStore();
 
-  useEffect(() => {
-    if (investment.type === 'crypto') {
-      CryptoService.getCurrentPrice(investment.tokenId).then((price) => {
-        setCurrentPrice(price);
-      });
-    } else {  
-      StockService.getCurrentPrice(investment.symbol).then((price) => {
-        setCurrentPrice(price);
-      });
-    }
-  }, [investment]);
-
-  useEffect(() => {
-    const profitLoss = calculateProfitLoss(
-      investment.quantity,
-      investment.purchasePrice,
-      currentPrice
-    );
-    setProfitLoss(profitLoss);
-  }, [investment, currentPrice]);
+  const formatNumber = (amount: number): string =>
+    new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
 
   return (
     <Card>
@@ -52,25 +36,25 @@ export function InvestmentCard({ investment }: InvestmentCardProps) {
       <CardContent>
         <div className="space-y-2">
           <div className="flex justify-between">
-            <span className="text-sm text-muted-foreground">Quantity</span>
-            <span>{investment.quantity.toFixed(4)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-sm text-muted-foreground">Purchase Price</span>
-            <span>{formatCurrency(investment.purchasePrice)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-sm text-muted-foreground">Current Price</span>
-            <span>{formatCurrency(currentPrice)}</span>
-          </div>
-          <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">Purchase Date</span>
             <span>{formatDate(investment.purchaseDate)}</span>
           </div>
           <div className="flex justify-between">
+            <span className="text-sm text-muted-foreground">Quantity</span>
+            <span>{investment.quantity}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-sm text-muted-foreground">Purchase Price</span>
+            <span>{`${currencyFormatted(investment.purchasePriceCurrency)} ${formatNumber(investment.purchasePrice)}`}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-sm text-muted-foreground">Current Price</span>
+            <span>{`${currencyFormatted(currency)} ${formatNumber(investment.quantity * (investment.currentPrice ?? 0))}`}</span>
+          </div>
+          <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">Profit/Loss</span>
-            <span className={profitLoss >= 0 ? 'text-green-500' : 'text-red-500'}>
-              {formatCurrency(profitLoss)} ({profitLossPourcentage.toFixed(2)}%)
+            <span className={investment.profitLoss && investment.profitLoss >= 0 ? 'text-green-500' : 'text-red-500'}>
+              {`${currencyFormatted(currency)} ${formatNumber(investment.profitLoss ?? 0)}`} ({formatNumber((investment.profitLoss ?? 0)/(investment.purchasePrice)*100)}%)
             </span>
           </div>
         </div>
