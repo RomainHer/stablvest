@@ -140,9 +140,14 @@ export default function PortfolioPage() {
                 </div>
                 <div className="mt-4">
                   <p>Quantité: {investment.quantity}</p>
-                  <p>Prix actuel: {investment.currentPrice?.toFixed(2)} {currencyFormatted(currency)}</p>
-                  <p>Investissement de départ: {investment.purchasePrice.toFixed(2)} {currencyFormatted(currency)}</p>
-                  <p>Pourcentage de gain: <span className={`${investment.profitLoss && investment.profitLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>{((investment.profitLoss ?? 0) / investment.purchasePrice * 100 ).toFixed(2)}%</span></p>
+                  <p>Prix unitaire actuel: {investment.currentPrice?.toFixed(2)} {currencyFormatted(currency)}</p>
+                  {investment.purchasePrice > 0 && (
+                    <>
+                      <p>Prix unitaire à l'achat: {(investment.convertedPurchasePrice ?? investment.purchasePrice).toFixed(2)} {currencyFormatted(currency)}</p>
+                      <p>Investissement de départ: {((investment.convertedPurchasePrice ?? investment.purchasePrice) * investment.quantity).toFixed(2)} {currencyFormatted(currency)}</p>
+                      <p>Pourcentage de gain: <span className={`${investment.profitLoss && investment.profitLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>{((investment.profitLoss ?? 0) / (investment.purchasePrice * investment.quantity) * 100 ).toFixed(2)}%</span></p>
+                    </>
+                  )}
                 </div>
               </div>
             ))}

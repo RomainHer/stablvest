@@ -43,15 +43,16 @@ export class SupabasePortfolioService {
               currentCurrency
             );
 
-            const profitLoss = investmentValue - convertedPurchasePrice;
+            const profitLoss = investmentValue - (convertedPurchasePrice * investment.quantity);
 
-            totalInvested += convertedPurchasePrice;
+            totalInvested += convertedPurchasePrice * investment.quantity;
             totalValue += investmentValue;
 
             return {
               ...investment,
               currentPrice,
               profitLoss,
+              convertedPurchasePrice,
             };
           } catch (error) {
             console.error(`Erreur lors du calcul pour l'investissement ${investment.id}:`, error);

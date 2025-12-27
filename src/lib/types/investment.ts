@@ -12,6 +12,7 @@ export interface Investment {
   purchaseDate: Date; // Mapping: purchase_date (converti depuis string ISO)
   currentPrice?: number; // Calculé côté frontend
   profitLoss?: number; // Calculé côté frontend
+  convertedPurchasePrice?: number; // Prix d'achat unitaire converti dans la devise d'affichage
   // Note: user_id sera géré par l'authentification, pas exposé dans cette interface
 }
 

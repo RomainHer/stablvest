@@ -21,7 +21,7 @@ export class PortfolioService {
         currentCurrency
       );
 
-      totalInvested += convertedPurchasePrice;
+      totalInvested += convertedPurchasePrice * investment.quantity;
       totalValue += investmentValue;
     }
 
@@ -33,7 +33,7 @@ export class PortfolioService {
           investment.purchasePriceCurrency.toLowerCase(),
           currentCurrency
         );
-        const profitLoss = currentPrice * investment.quantity - convertedPurchasePrice;
+        const profitLoss = currentPrice * investment.quantity - (convertedPurchasePrice * investment.quantity);
 
         return {
           ...investment,
@@ -64,13 +64,13 @@ export class PortfolioService {
   private static async calculateProfitLoss(investment: Investment): Promise<number> {
     const currentPrice = await this.getCurrentPrice(investment);
     const currentCurrency = useSettingsStore.getState().currency.toLowerCase();
-    
+
     const convertedPurchasePrice = await CurrencyService.convertCurrency(
       investment.purchasePrice,
       investment.purchasePriceCurrency.toLowerCase(),
       currentCurrency
     );
 
-    return currentPrice * investment.quantity - convertedPurchasePrice;
+    return currentPrice * investment.quantity - (convertedPurchasePrice * investment.quantity);
   }
 } 
