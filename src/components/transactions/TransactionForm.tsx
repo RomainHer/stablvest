@@ -34,6 +34,8 @@ export function TransactionForm({ onSubmit, onClose }: TransactionFormProps) {
     quantity: 0,
     purchasePrice: 0,
     purchaseDate: new Date(),
+    transactionFee: null,
+    transactionFeeCurrency: null,
   });
 
   useEffect(() => {
@@ -150,6 +152,40 @@ export function TransactionForm({ onSubmit, onClose }: TransactionFormProps) {
               purchaseDate: rawValue ? new Date(rawValue) : new Date(),
             });
           }}
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="transactionFee">Frais de transaction (optionnel)</Label>
+        <Input
+          id="transactionFee"
+          type="number"
+          value={formData.transactionFee ?? ''}
+          onChange={(e) => {
+            const rawValue = e.target.value;
+            const parsedValue = parseFloat(rawValue);
+            setFormData({
+              ...formData,
+              transactionFee: rawValue === '' ? null : (Number.isNaN(parsedValue) ? 0 : parsedValue),
+            });
+          }}
+          placeholder="0.00"
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="transactionFeeCurrency">Devise des frais (optionnel)</Label>
+        <Input
+          id="transactionFeeCurrency"
+          type="text"
+          value={formData.transactionFeeCurrency ?? ''}
+          onChange={(e) => {
+            setFormData({
+              ...formData,
+              transactionFeeCurrency: e.target.value || null,
+            });
+          }}
+          placeholder="EUR, USD, etc."
         />
       </div>
 

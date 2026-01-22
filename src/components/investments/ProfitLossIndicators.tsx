@@ -16,6 +16,7 @@ export function ProfitLossIndicators({ investments }: ProfitLossIndicatorsProps)
     totalValue: 0,
     totalInvested: 0,
     totalProfitLoss: 0,
+    totalFees: 0,
     allInvestments: [],
     profitableInvestments: [],
     unprofitableInvestments: [],
@@ -28,7 +29,7 @@ export function ProfitLossIndicators({ investments }: ProfitLossIndicatorsProps)
   }, [investments]);
 
   return (
-    <div className="grid gap-4 md:grid-cols-4">
+    <div className="grid gap-4 md:grid-cols-5">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Invested</CardTitle>
@@ -67,6 +68,20 @@ export function ProfitLossIndicators({ investments }: ProfitLossIndicatorsProps)
         </CardHeader>
         <CardContent>
           <div className={`text-2xl font-bold ${portfolio.totalProfitLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>{portfolio.totalProfitLoss >= 0 ? '+' : ''} {((portfolio.totalProfitLoss ?? 0) / portfolio.totalInvested * 100).toFixed(2)}%</div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Total Fees</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold text-orange-600">
+            {formatCurrency(portfolio.totalFees)}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Transaction costs
+          </p>
         </CardContent>
       </Card>
     </div>

@@ -21,6 +21,8 @@ export interface Database {
           purchase_price_currency: string
           purchase_date: string
           user_id: string
+          transaction_fee: number | null
+          transaction_fee_currency: string | null
         }
         Insert: {
           id?: number
@@ -33,6 +35,8 @@ export interface Database {
           purchase_price_currency: string
           purchase_date: string
           user_id: string
+          transaction_fee?: number | null
+          transaction_fee_currency?: string | null
         }
         Update: {
           id?: number
@@ -45,6 +49,8 @@ export interface Database {
           purchase_price_currency?: string
           purchase_date?: string
           user_id?: string
+          transaction_fee?: number | null
+          transaction_fee_currency?: string | null
         }
       }
     }

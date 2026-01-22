@@ -3,7 +3,7 @@
 import { Investment } from '@/lib/types/investment';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { formatCurrency, formatDate, calculateProfitLoss } from '@/lib/utils';
+import { formatCurrency, formatDate, calculateProfitLoss, calculateProfitLossWithFees } from '@/lib/utils';
 import { useEffect, useState, useMemo } from 'react';
 import { CryptoService } from '@/lib/services/crypto.service';
 import { StockService } from '@/lib/services/stock.service';
@@ -16,7 +16,10 @@ export function InvestmentCard({ investment }: InvestmentCardProps) {
 
   const [currentPrice, setCurrentPrice] = useState<number>(0);
   const [profitLoss, setProfitLoss] = useState<number>(0);
-  const profitLossPourcentage = useMemo(() => (profitLoss / (investment.quantity * investment.purchasePrice)) * 100, [profitLoss, investment.quantity, investment.purchasePrice]);
+  const profitLossPourcentage = useMemo(() => {
+    const totalInvested = (investment.purchasePrice * investment.quantity) + (investment.transactionFee ?? 0);
+    return totalInvested > 0 ? (profitLoss / totalInvested) * 100 : 0;
+  }, [profitLoss, investment.quantity, investment.purchasePrice, investment.transactionFee]);
 
   useEffect(() => {
     if (investment.type === 'crypto') {
@@ -31,10 +34,11 @@ export function InvestmentCard({ investment }: InvestmentCardProps) {
   }, [investment]);
 
   useEffect(() => {
-    const profitLoss = calculateProfitLoss(
+    const profitLoss = calculateProfitLossWithFees(
       investment.quantity,
       investment.purchasePrice,
-      currentPrice
+      currentPrice,
+      investment.transactionFee
     );
     setProfitLoss(profitLoss);
   }, [investment, currentPrice]);
@@ -59,6 +63,24 @@ export function InvestmentCard({ investment }: InvestmentCardProps) {
             <span className="text-sm text-muted-foreground">Purchase Price</span>
             <span>{formatCurrency(investment.purchasePrice)}</span>
           </div>
+          {investment.transactionFee && investment.transactionFee > 0 && (
+            <>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Transaction Fee</span>
+                <span className="text-sm">
+                  {investment.transactionFee.toFixed(2)} {investment.transactionFeeCurrency}
+                </span>
+              </div>
+              {investment.effectivePurchasePrice && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Effective Unit Price</span>
+                  <span className="text-sm font-medium">
+                    {formatCurrency(investment.effectivePurchasePrice)}
+                  </span>
+                </div>
+              )}
+            </>
+          )}
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">Current Price</span>
             <span>{formatCurrency(currentPrice)}</span>

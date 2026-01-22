@@ -211,17 +211,18 @@ export class SupabaseInvestmentService {
     totalValue: number;
     totalInvested: number;
     totalProfitLoss: number;
+    totalFees: number;
   }> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         throw new Error('Utilisateur non connecté');
       }
 
       const { data, error } = await supabase
         .from('investments')
-        .select('quantity, purchase_price, purchase_price_currency')
+        .select('quantity, purchase_price, purchase_price_currency, transaction_fee, transaction_fee_currency')
         .eq('user_id', user.id);
 
       if (error) {
@@ -231,7 +232,14 @@ export class SupabaseInvestmentService {
 
       // Calculer les statistiques de base
       const totalInvestments = data.length;
-      const totalInvested = data.reduce((sum, inv) => sum + (inv.quantity * inv.purchase_price), 0);
+      const totalInvested = data.reduce((sum, inv) => {
+        const investmentAmount = inv.quantity * inv.purchase_price;
+        const fee = inv.transaction_fee ?? 0;
+        return sum + investmentAmount + fee;
+      }, 0);
+
+      // Calculer les frais totaux
+      const totalFees = data.reduce((sum, inv) => sum + (inv.transaction_fee ?? 0), 0);
 
       // Note: Pour les calculs de valeur actuelle et profit/loss,
       // il faudrait intégrer les services de prix en temps réel
@@ -241,6 +249,7 @@ export class SupabaseInvestmentService {
         totalValue: totalInvested, // À remplacer par le calcul avec les prix actuels
         totalInvested,
         totalProfitLoss: 0, // À calculer avec les prix actuels
+        totalFees,
       };
     } catch (error) {
       console.error('Erreur SupabaseInvestmentService.getPortfolioStats:', error);

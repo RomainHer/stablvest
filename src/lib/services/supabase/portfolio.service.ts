@@ -19,6 +19,7 @@ export class SupabasePortfolioService {
           totalValue: 0,
           totalInvested: 0,
           totalProfitLoss: 0,
+          totalFees: 0,
           allInvestments: [],
           profitableInvestments: [],
           unprofitableInvestments: [],
@@ -28,6 +29,7 @@ export class SupabasePortfolioService {
       const currentCurrency = useSettingsStore.getState().currency.toLowerCase();
       let totalInvested = 0;
       let totalValue = 0;
+      let totalFees = 0;
 
       // Calculer les valeurs et profits pour chaque investissement
       const investmentsWithProfit = await Promise.all(
@@ -43,16 +45,38 @@ export class SupabasePortfolioService {
               currentCurrency
             );
 
-            const profitLoss = investmentValue - (convertedPurchasePrice * investment.quantity);
+            // Convertir les frais en devise d'affichage
+            let convertedFee = 0;
+            if (investment.transactionFee && investment.transactionFee > 0) {
+              const feeCurrency = investment.transactionFeeCurrency?.toLowerCase() || investment.purchasePriceCurrency.toLowerCase();
+              convertedFee = await CurrencyService.convertCurrency(
+                investment.transactionFee,
+                feeCurrency,
+                currentCurrency
+              );
+            }
 
-            totalInvested += convertedPurchasePrice * investment.quantity;
+            // Calculer le prix effectif par unité (incluant les frais)
+            const feePerUnit = convertedFee / investment.quantity;
+            const effectivePurchasePrice = convertedPurchasePrice + feePerUnit;
+
+            // Total investi inclut maintenant les frais
+            const totalInvestedForThis = effectivePurchasePrice * investment.quantity;
+
+            // P&L basé sur le prix effectif
+            const profitLoss = investmentValue - totalInvestedForThis;
+
+            totalInvested += totalInvestedForThis;
             totalValue += investmentValue;
+            totalFees += convertedFee;
 
             return {
               ...investment,
               currentPrice,
               profitLoss,
               convertedPurchasePrice,
+              effectivePurchasePrice,
+              totalFeesInDisplayCurrency: convertedFee,
             };
           } catch (error) {
             console.error(`Erreur lors du calcul pour l'investissement ${investment.id}:`, error);
@@ -61,6 +85,8 @@ export class SupabasePortfolioService {
               ...investment,
               currentPrice: investment.purchasePrice,
               profitLoss: 0,
+              effectivePurchasePrice: investment.purchasePrice,
+              totalFeesInDisplayCurrency: 0,
             };
           }
         })
@@ -70,6 +96,7 @@ export class SupabasePortfolioService {
         totalValue,
         totalInvested,
         totalProfitLoss: totalValue - totalInvested,
+        totalFees,
         allInvestments: investmentsWithProfit,
         profitableInvestments: investmentsWithProfit.filter(investment => investment.profitLoss > 0),
         unprofitableInvestments: investmentsWithProfit.filter(investment => investment.profitLoss <= 0),

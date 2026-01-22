@@ -40,3 +40,31 @@ export function calculateProfitLoss(
 ): number {
   return (currentPrice - purchasePrice) * quantity;
 }
+
+/**
+ * Calculate effective purchase price including transaction fees
+ */
+export function calculateEffectivePurchasePrice(
+  purchasePrice: number,
+  quantity: number,
+  transactionFee?: number | null
+): number {
+  if (!transactionFee || transactionFee <= 0 || quantity <= 0) {
+    return purchasePrice;
+  }
+  const feePerUnit = transactionFee / quantity;
+  return purchasePrice + feePerUnit;
+}
+
+/**
+ * Calculate profit/loss with fees included
+ */
+export function calculateProfitLossWithFees(
+  quantity: number,
+  purchasePrice: number,
+  currentPrice: number,
+  transactionFee?: number | null
+): number {
+  const effectivePrice = calculateEffectivePurchasePrice(purchasePrice, quantity, transactionFee);
+  return (currentPrice - effectivePrice) * quantity;
+}

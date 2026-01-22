@@ -15,6 +15,8 @@ export interface SupabaseInvestmentRow {
   purchase_price_currency: string;
   purchase_date: string; // ISO date string from Supabase
   user_id: string;
+  transaction_fee: number | null;
+  transaction_fee_currency: string | null;
 }
 
 // Type pour les insertions vers Supabase (snake_case, sans id)
@@ -28,6 +30,8 @@ export interface SupabaseInvestmentInsertData {
   purchase_price_currency: string;
   purchase_date: string; // ISO date string
   user_id: string;
+  transaction_fee?: number | null;
+  transaction_fee_currency?: string | null;
 }
 
 // Type pour les mises à jour vers Supabase (snake_case, tout optionnel sauf id)
@@ -42,4 +46,6 @@ export interface SupabaseInvestmentUpdateData {
   purchase_price_currency?: string;
   purchase_date?: string;
   user_id?: string;
+  transaction_fee?: number | null;
+  transaction_fee_currency?: string | null;
 } 

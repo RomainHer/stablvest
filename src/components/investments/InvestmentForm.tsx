@@ -21,6 +21,8 @@ const investmentSchema = z.object({
   quantity: z.number().min(0.00000001, 'Quantity must be greater than 0'),
   purchasePrice: z.number().min(0.00000001, 'Price must be greater than 0'),
   purchaseDate: z.string().min(1, 'Date is required'),
+  transactionFee: z.number().min(0, 'Fee cannot be negative').optional().nullable(),
+  transactionFeeCurrency: z.string().optional().nullable(),
 }).refine((data) => {
   if (data.type === 'crypto') {
     return !!data.tokenId;
@@ -29,10 +31,20 @@ const investmentSchema = z.object({
 }, {
   message: "Token ID is required for cryptocurrency investments",
   path: ["tokenId"]
+}).refine((data) => {
+  if (data.transactionFee && data.transactionFee > 0) {
+    return !!data.transactionFeeCurrency && data.transactionFeeCurrency.trim() !== '';
+  }
+  return true;
+}, {
+  message: "Currency is required when transaction fee is specified",
+  path: ["transactionFeeCurrency"]
 });
 
 type InvestmentFormData = z.infer<typeof investmentSchema> & {
   tokenId?: string;
+  transactionFee?: number | null;
+  transactionFeeCurrency?: string | null;
 };
 
 interface InvestmentFormProps {
@@ -53,6 +65,8 @@ export function InvestmentForm({ onInvestmentAdded }: InvestmentFormProps) {
       quantity: 0,
       purchasePrice: 0,
       purchaseDate: new Date().toISOString().split('T')[0],
+      transactionFee: undefined,
+      transactionFeeCurrency: undefined,
     },
   });
 
@@ -68,6 +82,8 @@ export function InvestmentForm({ onInvestmentAdded }: InvestmentFormProps) {
         purchasePrice: data.purchasePrice,
         purchasePriceCurrency: currency,
         purchaseDate: new Date(data.purchaseDate),
+        transactionFee: data.transactionFee || null,
+        transactionFeeCurrency: data.transactionFeeCurrency || null,
       });
       onInvestmentAdded?.(created);
       form.reset();
@@ -146,6 +162,32 @@ export function InvestmentForm({ onInvestmentAdded }: InvestmentFormProps) {
               type="date"
               {...form.register('purchaseDate')}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="transactionFee">Transaction Fee (Optional)</Label>
+            <Input
+              id="transactionFee"
+              type="number"
+              step="any"
+              placeholder="0.00"
+              {...form.register('transactionFee', { valueAsNumber: true })}
+            />
+            <p className="text-xs text-muted-foreground">
+              Fee paid when purchasing this investment
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="transactionFeeCurrency">Fee Currency (Optional)</Label>
+            <Input
+              id="transactionFeeCurrency"
+              placeholder="EUR, USD, etc."
+              {...form.register('transactionFeeCurrency')}
+            />
+            <p className="text-xs text-muted-foreground">
+              Defaults to purchase currency if not specified
+            </p>
           </div>
 
           <Button type="submit" disabled={isSubmitting}>

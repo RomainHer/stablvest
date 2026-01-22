@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useSettingsStore } from '@/lib/stores/settingsStore';
 import { currencyFormatted } from '@/lib/utils';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { InvestmentCard } from '@/components/investments/InvestmentCard';
 
 export default function PortfolioPage() {
   const currency = useSettingsStore.getState().currency;
@@ -96,7 +97,7 @@ export default function PortfolioPage() {
         )}
 
         {portfolio && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
             <div className="bg-card p-4 rounded-lg">
               <h3 className="text-sm font-medium text-muted-foreground">Valeur totale</h3>
               <p className="text-2xl font-bold">{portfolio.totalValue.toFixed(2)} {currencyFormatted(currency)}</p>
@@ -115,6 +116,12 @@ export default function PortfolioPage() {
               <h3 className="text-sm font-medium text-muted-foreground">Pourcentage de gain</h3>
               <p className={`text-2xl font-bold ${portfolio.totalProfitLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                 {((portfolio.totalProfitLoss ?? 0) / portfolio.totalInvested * 100).toFixed(2)}%
+              </p>
+            </div>
+            <div className="bg-card p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-muted-foreground">Total Frais Payés</h3>
+              <p className="text-2xl font-bold text-orange-600">
+                {portfolio.totalFees.toFixed(2)} {currencyFormatted(currency)}
               </p>
             </div>
           </div>
@@ -144,8 +151,18 @@ export default function PortfolioPage() {
                   {investment.purchasePrice > 0 && (
                     <>
                       <p>Prix unitaire à l'achat: {(investment.convertedPurchasePrice ?? investment.purchasePrice).toFixed(2)} {currencyFormatted(currency)}</p>
-                      <p>Investissement de départ: {((investment.convertedPurchasePrice ?? investment.purchasePrice) * investment.quantity).toFixed(2)} {currencyFormatted(currency)}</p>
-                      <p>Pourcentage de gain: <span className={`${investment.profitLoss && investment.profitLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>{((investment.profitLoss ?? 0) / (investment.purchasePrice * investment.quantity) * 100 ).toFixed(2)}%</span></p>
+                      <div>
+                        <span>Investissement de départ: {((investment.convertedPurchasePrice ?? investment.purchasePrice) * investment.quantity + (investment.totalFeesInDisplayCurrency ?? 0)).toFixed(2)} {currencyFormatted(currency)}</span>
+                        {investment.totalFeesInDisplayCurrency && investment.totalFeesInDisplayCurrency > 0 &&
+                          <span className="text-orange-500 font-bold"> (dont {investment.totalFeesInDisplayCurrency.toFixed(2)} {currencyFormatted(currency)} de frais)</span>
+                        }
+                      </div>
+                      <p>Pourcentage de gain: <span className={`${investment.profitLoss && investment.profitLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        {((investment.profitLoss ?? 0) / (
+                          (investment.convertedPurchasePrice ?? investment.purchasePrice) * investment.quantity +
+                          (investment.totalFeesInDisplayCurrency ?? 0)
+                        ) * 100).toFixed(2)}%
+                      </span></p>
                     </>
                   )}
                 </div>
